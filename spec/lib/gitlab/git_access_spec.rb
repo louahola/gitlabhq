@@ -28,7 +28,7 @@ describe Gitlab::GitAccess, lib: true do
       before do
         @branch = create :protected_branch, project: project
       end
-      
+
       it "returns true if user is a master" do
         project.team << [user, :master]
         expect(access.can_push_to_branch?(@branch.name)).to be_truthy
@@ -63,6 +63,48 @@ describe Gitlab::GitAccess, lib: true do
       it "returns false if user is a reporter" do
         project.team << [user, :reporter]
         expect(access.can_push_to_branch?(@branch.name)).to be_falsey
+      end
+    end
+
+    describe 'merge to protected branch' do
+      before do
+        @branch = create :protected_branch, project: project
+      end
+
+      it "returns true if user is a master" do
+        project.team << [user, :master]
+        expect(access.can_merge_to_branch?(@branch.name)).to be_truthy
+      end
+
+      it "returns false if user is a developer" do
+        project.team << [user, :developer]
+        expect(access.can_merge_to_branch?(@branch.name)).to be_falsey
+      end
+
+      it "returns false if user is a reporter" do
+        project.team << [user, :reporter]
+        expect(access.can_merge_to_branch?(@branch.name)).to be_falsey
+      end
+    end
+
+    describe 'merge to protected branch if allowed for developers' do
+      before do
+        @branch = create :protected_branch, project: project, developers_can_merge: true
+      end
+
+      it "returns true if user is a master" do
+        project.team << [user, :master]
+        expect(access.can_merge_to_branch?(@branch.name)).to be_truthy
+      end
+
+      it "returns true if user is a developer" do
+        project.team << [user, :developer]
+        expect(access.can_merge_to_branch?(@branch.name)).to be_truthy
+      end
+
+      it "returns false if user is a reporter" do
+        project.team << [user, :reporter]
+        expect(access.can_merge_to_branch?(@branch.name)).to be_falsey
       end
     end
 
@@ -211,6 +253,23 @@ describe Gitlab::GitAccess, lib: true do
       updated_permissions_matrix.keys.each do |role|
         describe "#{role} access" do
           before { create(:protected_branch, name: 'feature', developers_can_push: true, project: project) }
+          before { project.team << [user, role] }
+
+          updated_permissions_matrix[role].each do |action, allowed|
+            context action do
+              subject { access.push_access_check(changes[action]) }
+
+              it { expect(subject.allowed?).to allowed ? be_truthy : be_falsey }
+            end
+          end
+        end
+      end
+    end
+
+    context "with enabled developers merge to protected branches " do
+      updated_permissions_matrix.keys.each do |role|
+        describe "#{role} access" do
+          before { create(:protected_branch, name: 'feature', developers_can_merge: true, project: project) }
           before { project.team << [user, role] }
 
           updated_permissions_matrix[role].each do |action, allowed|

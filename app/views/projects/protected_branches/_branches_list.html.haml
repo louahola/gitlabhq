@@ -7,6 +7,7 @@
         %tr.no-border
           %th Branch
           %th Developers can push
+          %th Developers can merge
           %th Last commit
           %th
 
@@ -21,6 +22,8 @@
                   %span.label.label-info default
               %td
                 = check_box_tag "developers_can_push", branch.id, branch.developers_can_push, "data-url" => @url
+              %td
+                = check_box_tag "developers_can_merge", branch.id, branch.developers_can_merge, "data-url" => @url
               %td
                 - if commit = branch.commit
                   = link_to namespace_project_commit_path(@project.namespace, @project, commit.id), class: 'commit_short_id' do

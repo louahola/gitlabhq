@@ -38,6 +38,16 @@ module Gitlab
       end
     end
 
+    def can_merge_to_branch?(ref)
+      return false unless user
+
+      if project.protected_branch?(ref) && !project.developers_can_merge_to_protected_branch?(ref)
+        user.can?(:merge_code_to_protected_branches, project)
+      else
+        user.can?(:push_code, project)
+      end
+    end
+
     def can_read_project?
       if user
         user.can?(:read_project, project)
@@ -144,6 +154,8 @@ module Gitlab
             build_status_object(false, "You are not allowed to deleted protected branches from this project.")
           when :push_code_to_protected_branches
             build_status_object(false, "You are not allowed to push code to protected branches on this project.")
+          when :merge_code_to_protected_branches
+            build_status_object(false, "You are not allowed to merge code to protected branches on this project.")
           when :admin_project
             build_status_object(false, "You are not allowed to change existing tags on this project.")
           else # :push_code
@@ -170,6 +182,8 @@ module Gitlab
         :remove_protected_branches
       elsif project.developers_can_push_to_protected_branch?(branch_name)
         :push_code
+      elsif project.developers_can_merge_to_protected_branch?(branch_name)
+        :merge_code_to_protected_branches
       else
         :push_code_to_protected_branches
       end

@@ -149,6 +149,15 @@ describe GitPushService, services: true do
         service.execute(project, user, @blankrev, 'newrev', 'refs/heads/master')
       end
 
+      it "when merging a branch for the first time with default branch protection set to 'developers can merge'" do
+        stub_application_setting(default_branch_protection: Gitlab::Access::PROTECTION_DEV_CAN_MERGE)
+
+        expect(project).to receive(:execute_hooks)
+        expect(project.default_branch).to eq("master")
+        expect(project.protected_branches).to receive(:create).with({ name: "master", developers_can_merge: true })
+        service.execute(project, user, @blankrev, 'newrev', 'refs/heads/master')
+      end
+
       it "when pushing new commits to existing branch" do
         expect(project).to receive(:execute_hooks)
         service.execute(project, user, 'oldrev', 'newrev', 'refs/heads/master')

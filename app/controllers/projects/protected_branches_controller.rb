@@ -20,9 +20,7 @@ class Projects::ProtectedBranchesController < Projects::ApplicationController
     protected_branch = @project.protected_branches.find(params[:id])
 
     if protected_branch &&
-       protected_branch.update_attributes(
-         developers_can_push: params[:developers_can_push]
-       )
+       protected_branch.update_attributes(params.slice(:developers_can_push, :developers_can_merge).symbolize_keys)
 
       respond_to do |format|
         format.json { render json: protected_branch, status: :ok }
@@ -46,6 +44,6 @@ class Projects::ProtectedBranchesController < Projects::ApplicationController
   private
 
   def protected_branch_params
-    params.require(:protected_branch).permit(:name, :developers_can_push)
+    params.require(:protected_branch).permit(:name, :developers_can_push, :developers_can_merge)
   end
 end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151210125932) do
+ActiveRecord::Schema.define(version: 20151217132132) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -678,11 +678,12 @@ ActiveRecord::Schema.define(version: 20151210125932) do
   add_index "projects", ["visibility_level"], name: "index_projects_on_visibility_level", using: :btree
 
   create_table "protected_branches", force: :cascade do |t|
-    t.integer  "project_id",                          null: false
-    t.string   "name",                                null: false
+    t.integer  "project_id",                           null: false
+    t.string   "name",                                 null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "developers_can_push", default: false, null: false
+    t.boolean  "developers_can_push",  default: false, null: false
+    t.boolean  "developers_can_merge", default: false, null: false
   end
 
   add_index "protected_branches", ["project_id"], name: "index_protected_branches_on_project_id", using: :btree

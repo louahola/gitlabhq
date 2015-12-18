@@ -176,7 +176,8 @@ class Ability
         :create_wiki,
         :manage_builds,
         :download_build_artifacts,
-        :push_code
+        :push_code,
+        :merge_code_to_protected_branches
       ]
     end
 
@@ -185,6 +186,7 @@ class Ability
         :create_merge_request,
         :push_code,
         :push_code_to_protected_branches,
+        :merge_code_to_protected_branches,
         :update_merge_request,
         :admin_merge_request
       ]

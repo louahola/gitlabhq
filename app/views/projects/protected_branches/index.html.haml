@@ -30,6 +30,13 @@
             = f.check_box :developers_can_push
             %strong Developers can push
           .help-block Allow developers to push to this branch
+    .form-group
+      .col-sm-offset-2.col-sm-10
+        .checkbox
+          = f.label :developers_can_merge do
+            = f.check_box :developers_can_merge
+            %strong Developers can merge
+          .help-block Allow developers to merge to this branch
     .form-actions
       = f.submit 'Protect', class: "btn-create btn"
 = render 'branches_list'
